@@ -23,7 +23,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    context.read<OrderDetailCubit>().fetchOrderDetail(13);
+    context.read<OrderDetailCubit>().fetchOrderDetail(15);
   }
 
   @override
