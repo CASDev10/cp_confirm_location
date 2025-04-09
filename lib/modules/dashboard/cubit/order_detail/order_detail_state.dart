@@ -1,6 +1,7 @@
 import 'package:cp_confirm_location/modules/dashboard/models/order_detail_response.dart';
 
-enum OrderDetailStatus { initial, loading, success, error }
+enum OrderDetailStatus { initial, loading, success, error, noResult }
+
 
 class OrderDetailState {
   final OrderDetailStatus status;
