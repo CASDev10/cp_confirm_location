@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-
+import 'dart:html' as html;
 import '../../../utils/display/display_utils.dart';
 import '../cubit/confirm_location/confirm_location_cubit.dart';
 import '../cubit/confirm_location/confirm_location_state.dart';
@@ -20,10 +20,29 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  String id = '';
+
   @override
   void initState() {
     super.initState();
-    context.read<OrderDetailCubit>().fetchOrderDetail(15);
+
+    final uri = Uri.parse(html.window.location.href);
+    final idParam = uri.queryParameters['id'];
+
+    if (idParam != null && idParam.trim().isNotEmpty) {
+      final parsedId = int.tryParse(idParam);
+      if (parsedId != null) {
+        setState(() {
+          id = idParam;
+        });
+
+        context.read<OrderDetailCubit>().fetchOrderDetail(parsedId);
+      } else {
+        context.read<OrderDetailCubit>().emitNoResult(); // if needed
+      }
+    } else {
+      context.read<OrderDetailCubit>().emitNoResult(); // No ID in URL
+    }
   }
 
   @override
@@ -54,15 +73,17 @@ class _DashboardPageState extends State<DashboardPage> {
             return Center(child: CircularProgressIndicator());
           } else if (orderDetailState.status == OrderDetailStatus.error) {
             return Center(child: Text('Error fetching order details'));
+          } else if (orderDetailState.status == OrderDetailStatus.noResult) {
+            return Center(child: Text('No Order Found'));
           } else if (orderDetailState.status == OrderDetailStatus.success) {
             return BlocConsumer<CurrentLocationCubit, CurrentLocationState>(
               listener: (context, currentLocationState) {
                 if (currentLocationState.currentLocationStatus ==
                     CurrentLocationStatus.success) {
                   context.read<GeocodingCubit>().getCurrentLocationLatLng(
-                    currentLocationState.lat,
-                    currentLocationState.lng,
-                  );
+                        currentLocationState.lat,
+                        currentLocationState.lng,
+                      );
                 }
                 print(
                   "LatLng : ${currentLocationState.lat} , ${currentLocationState.lng}",
@@ -76,10 +97,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       child: Center(
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
-                            maxWidth:
-                                constraints.maxWidth > 600
-                                    ? 600
-                                    : constraints.maxWidth,
+                            maxWidth: constraints.maxWidth > 600
+                                ? 600
+                                : constraints.maxWidth,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,17 +111,13 @@ class _DashboardPageState extends State<DashboardPage> {
                                     Icons.person,
                                     'Name:',
                                     orderDetailState
-                                        .orderModel!
-                                        .customer
-                                        .partyName,
+                                        .orderModel!.customer.partyName,
                                   ),
                                   _buildDetailRow(
                                     Icons.phone,
                                     'Mobile:',
                                     orderDetailState
-                                        .orderModel!
-                                        .customer
-                                        .mobile,
+                                        .orderModel!.customer.mobile,
                                   ),
                                 ],
                               ),
@@ -135,15 +151,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                     child: Row(
                                       children: List.generate(
                                         orderDetailState
-                                            .orderModel!
-                                            .items
-                                            .length,
+                                            .orderModel!.items.length,
                                         (index) {
                                           return _buildItemCard(
-                                            orderDetailState
-                                                .orderModel!
-                                                .items[index]
-                                                .quantity
+                                            orderDetailState.orderModel!
+                                                .items[index].quantity
                                                 .toString(),
                                             'Quantity: ${orderDetailState.orderModel!.items[index].quantity}',
                                             'Rate: \$${orderDetailState.orderModel!.items[index].rate}',
@@ -171,10 +183,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ),
                                 ],
                               ),
-                              BlocBuilder<
-                                GeocodingCubit,
-                                GeocodingLocationState
-                              >(
+                              BlocBuilder<GeocodingCubit,
+                                  GeocodingLocationState>(
                                 builder: (context, geocodingState) {
                                   return _buildCard(
                                     title: 'Delivery Address',
@@ -182,130 +192,131 @@ class _DashboardPageState extends State<DashboardPage> {
                                       geocodingState.geocodingStatus ==
                                               GeocodingStatus.success
                                           ? Text(
-                                            geocodingState
-                                                .addressEntity
-                                                .address,
-                                            textAlign: TextAlign.center,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 16,
-                                              color: Colors.black87,
-                                            ),
-                                          )
+                                              geocodingState
+                                                  .addressEntity.address,
+                                              textAlign: TextAlign.center,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                color: Colors.black87,
+                                              ),
+                                            )
                                           : Center(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Lottie.asset(
-                                                  'assets/animations/find_location.json',
-                                                  width: 150,
-                                                  height: 150,
-                                                ),
-                                                SizedBox(height: 10),
-                                                Text(
-                                                  "Fetching Address...",
-                                                  style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontWeight: FontWeight.w500,
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Lottie.asset(
+                                                    'assets/animations/find_location.json',
+                                                    width: 150,
+                                                    height: 150,
                                                   ),
-                                                ),
-                                              ],
+                                                  SizedBox(height: 10),
+                                                  Text(
+                                                    "Fetching Address...",
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
                                     ],
                                   );
                                 },
                               ),
                               SizedBox(height: 20),
-                              BlocBuilder<
-                                GeocodingCubit,
-                                GeocodingLocationState
-                              >(
+                              BlocBuilder<GeocodingCubit,
+                                  GeocodingLocationState>(
                                 builder: (context, geocodingState) {
                                   return geocodingState.geocodingStatus ==
                                           GeocodingStatus.success
                                       ? !orderDetailState
-                                              .orderModel!
-                                              .isLocationUpdate
+                                              .orderModel!.isLocationUpdate
                                           ? SizedBox(
-                                            width: double.infinity,
-                                            child: BlocConsumer<
-                                              UpdateLocationCubit,
-                                              UpdateLocationState
-                                            >(
-                                              listener: (
-                                                context,
-                                                updateLocationState,
-                                              ) {
-                                                if (updateLocationState
-                                                        .status ==
-                                                    UpdateLocationStatus
-                                                        .loading) {
-                                                  DisplayUtils.showLoader();
-                                                }
-                                                if (updateLocationState
-                                                        .status ==
-                                                    UpdateLocationStatus
-                                                        .error) {
-                                                  DisplayUtils.removeLoader();
-                                                  DisplayUtils.showSnackBar(
-                                                    context,
-                                                    updateLocationState.message,
-                                                  );
-                                                }
-                                                if (updateLocationState
-                                                        .status ==
-                                                    UpdateLocationStatus
-                                                        .success) {
-                                                  DisplayUtils.removeLoader();
-                                                  DisplayUtils.showSnackBar(
-                                                    context,
-                                                    updateLocationState.message,
-                                                  );
-                                                }
-                                              },
-                                              builder: (
-                                                context,
-                                                updateLocationState,
-                                              ) {
-                                                return updateLocationState
-                                                            .status !=
-                                                        UpdateLocationStatus
-                                                            .success
-                                                    ? ElevatedButton(
-                                                      style: ElevatedButton.styleFrom(
-                                                        backgroundColor: Color(
-                                                          0xFFEF1D26,
-                                                        ),
-                                                        padding:
-                                                            EdgeInsets.symmetric(
+                                              width: double.infinity,
+                                              child: BlocConsumer<
+                                                  UpdateLocationCubit,
+                                                  UpdateLocationState>(
+                                                listener: (
+                                                  context,
+                                                  updateLocationState,
+                                                ) {
+                                                  if (updateLocationState
+                                                          .status ==
+                                                      UpdateLocationStatus
+                                                          .loading) {
+                                                    DisplayUtils.showLoader();
+                                                  }
+                                                  if (updateLocationState
+                                                          .status ==
+                                                      UpdateLocationStatus
+                                                          .error) {
+                                                    DisplayUtils.removeLoader();
+                                                    DisplayUtils.showSnackBar(
+                                                      context,
+                                                      updateLocationState
+                                                          .message,
+                                                    );
+                                                  }
+                                                  if (updateLocationState
+                                                          .status ==
+                                                      UpdateLocationStatus
+                                                          .success) {
+                                                    DisplayUtils.removeLoader();
+                                                    DisplayUtils.showSnackBar(
+                                                      context,
+                                                      updateLocationState
+                                                          .message,
+                                                    );
+                                                  }
+                                                },
+                                                builder: (
+                                                  context,
+                                                  updateLocationState,
+                                                ) {
+                                                  return updateLocationState
+                                                              .status !=
+                                                          UpdateLocationStatus
+                                                              .success
+                                                      ? ElevatedButton(
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            backgroundColor:
+                                                                Color(
+                                                              0xFFEF1D26,
+                                                            ),
+                                                            padding: EdgeInsets
+                                                                .symmetric(
                                                               vertical: 16,
                                                             ),
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
                                                                 12,
                                                               ),
-                                                        ),
-                                                      ),
-                                                      onPressed: () {
-                                                        context
-                                                            .read<
-                                                              UpdateLocationCubit
-                                                            >()
-                                                            .updateLocation(
-                                                              orderDetailState
-                                                                  .orderModel!
-                                                                  .invoiceNo,
-                                                              currentLocationState
-                                                                  .lat,
-                                                              currentLocationState
-                                                                  .lng,
-                                                            );
-                                                      },
-                                                      child: Text(
-                                                        'Confirm Location',
-                                                        style:
-                                                            GoogleFonts.poppins(
+                                                            ),
+                                                          ),
+                                                          onPressed: () {
+                                                            context
+                                                                .read<
+                                                                    UpdateLocationCubit>()
+                                                                .updateLocation(
+                                                                  orderDetailState
+                                                                      .orderModel!
+                                                                      .invoiceNo,
+                                                                  currentLocationState
+                                                                      .lat,
+                                                                  currentLocationState
+                                                                      .lng,
+                                                                );
+                                                          },
+                                                          child: Text(
+                                                            'Confirm Location',
+                                                            style: GoogleFonts
+                                                                .poppins(
                                                               fontSize: 18,
                                                               fontWeight:
                                                                   FontWeight
@@ -313,12 +324,12 @@ class _DashboardPageState extends State<DashboardPage> {
                                                               color:
                                                                   Colors.white,
                                                             ),
-                                                      ),
-                                                    )
-                                                    : SizedBox.shrink();
-                                              },
-                                            ),
-                                          )
+                                                          ),
+                                                        )
+                                                      : SizedBox.shrink();
+                                                },
+                                              ),
+                                            )
                                           : SizedBox.shrink()
                                       : SizedBox.shrink();
                                 },
