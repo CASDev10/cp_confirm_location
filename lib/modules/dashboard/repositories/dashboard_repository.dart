@@ -37,11 +37,12 @@ class DashboardRepository {
     int orderNo,
     double lat,
     double lng,
+    String address
   ) async {
     try {
       var response = await _dioClient.post(
         Endpoints.updateLocation,
-        queryParameters: {"InvoiceNo": orderNo, "LAT": lat, "LONG": lng},
+        queryParameters: {"InvoiceNo": orderNo, "LAT": lat, "LONG": lng,"Address":address,},
       );
       return BaseResponse.fromJson(response.data);
     } on DioException catch (e, stackTrace) {
