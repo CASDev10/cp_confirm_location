@@ -10,7 +10,7 @@ class UpdateLocationCubit extends Cubit<UpdateLocationState> {
 
   UpdateLocationCubit(this._repository) : super(UpdateLocationState.initial());
 
-  Future<void> updateLocation(int orderNo, double lat, double lng) async {
+  Future<void> updateLocation(int orderNo, double lat, double lng,String address) async {
     emit(state.copyWith(status: UpdateLocationStatus.loading));
 
     try {
@@ -18,6 +18,7 @@ class UpdateLocationCubit extends Cubit<UpdateLocationState> {
         orderNo,
         lat,
         lng,
+        address
       );
       if (response.success) {
         emit(

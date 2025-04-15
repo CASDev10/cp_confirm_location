@@ -78,7 +78,8 @@ class _DashboardPageState extends State<DashboardPage> {
           } else if (orderDetailState.status == OrderDetailStatus.success) {
             return BlocConsumer<CurrentLocationCubit, CurrentLocationState>(
               listener: (context, currentLocationState) {
-                if (currentLocationState.currentLocationStatus ==
+                if(!orderDetailState.orderModel!.isLocationUpdate){
+if (currentLocationState.currentLocationStatus ==
                     CurrentLocationStatus.success) {
                   context.read<GeocodingCubit>().getCurrentLocationLatLng(
                         currentLocationState.lat,
@@ -88,6 +89,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 print(
                   "LatLng : ${currentLocationState.lat} , ${currentLocationState.lng}",
                 );
+                }
+                
               },
               builder: (context, currentLocationState) {
                 return LayoutBuilder(
@@ -200,7 +203,14 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 color: Colors.black87,
                                               ),
                                             )
-                                          : Center(
+                                          : orderDetailState.orderModel!.isLocationUpdate?Text(
+                                              orderDetailState.orderModel!.remarks,
+                                              textAlign: TextAlign.center,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                color: Colors.black87,
+                                              ),
+                                            ): Center(
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
@@ -297,26 +307,30 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                       .circular(
                                                                 12,
                                                               ),
-                                                            ),
-                                                          ),
-                                                          onPressed: () {
-                                                            context
-                                                                .read<
-                                                                    UpdateLocationCubit>()
-                                                                .updateLocation(
-                                                                  orderDetailState
-                                                                      .orderModel!
-                                                                      .invoiceNo,
-                                                                  currentLocationState
-                                                                      .lat,
-                                                                  currentLocationState
-                                                                      .lng,
-                                                                );
-                                                          },
-                                                          child: Text(
-                                                            'Confirm Location',
-                                                            style: GoogleFonts
-                                                                .poppins(
+                                                        ),
+                                                      ),
+                                                      onPressed: () {
+                                                        context
+                                                            .read<
+                                                              UpdateLocationCubit
+                                                            >()
+                                                            .updateLocation(
+                                                              orderDetailState
+                                                                  .orderModel!
+                                                                  .invoiceNo,
+                                                              currentLocationState
+                                                                  .lat,
+                                                              currentLocationState
+                                                                  .lng,
+                                                                  geocodingState
+                                                .addressEntity
+                                                .address
+                                                            );
+                                                      },
+                                                      child: Text(
+                                                        'Confirm Location',
+                                                        style:
+                                                            GoogleFonts.poppins(
                                                               fontSize: 18,
                                                               fontWeight:
                                                                   FontWeight
