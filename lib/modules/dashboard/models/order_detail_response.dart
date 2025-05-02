@@ -32,11 +32,11 @@ class OrderDetailResponse {
       );
 
   Map<String, dynamic> toJson() => {
-    "code": code,
-    "message": message,
-    "success": success,
-    "data": data.toJson(),
-  };
+        "code": code,
+        "message": message,
+        "success": success,
+        "data": data.toJson(),
+      };
 }
 
 class OrderModel {
@@ -85,52 +85,52 @@ class OrderModel {
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) => OrderModel(
-    locationId: json["locationID"],
-    invoiceNo: json["invoiceNo"],
-    invoiceDate: DateTime.parse(json["invoiceDate"]),
-    invoiceType: json["invoiceType"],
-    paymentMode: json["paymentMode"],
-    partyId: json["partyID"],
-    receiptNo: json["receiptNo"],
-    invoiceTotal: json["invoiceTotal"],
-    invoiceDiscount: json["invoiceDiscount"],
-    fpBox: json["fpBox"],
-    fpCharges: json["fpCharges"],
-    cpCharges: json["cpCharges"],
-    deliveryCharges: json["deliveryCharges"],
-    promoCode: json["promoCode"],
-    remarks: json["remarks"],
-    isLocationUpdate: json["isLocationUpdate"],
-    netInvoiceTotal: json["netInvoiceTotal"],
-    customer: CustomerModel.fromJson(json["customer"]),
-    items: List<ItemModel>.from(
-      json["items"].map((x) => ItemModel.fromJson(x)),
-    ),
-    transactionBy: json["transactionBy"],
-  );
+        locationId: json["locationID"],
+        invoiceNo: json["invoiceNo"],
+        invoiceDate: DateTime.parse(json["invoiceDate"]),
+        invoiceType: json["invoiceType"],
+        paymentMode: json["paymentMode"],
+        partyId: json["partyID"],
+        receiptNo: json["receiptNo"],
+        invoiceTotal: json["invoiceTotal"],
+        invoiceDiscount: json["invoiceDiscount"],
+        fpBox: json["fpBox"],
+        fpCharges: json["fpCharges"],
+        cpCharges: json["cpCharges"],
+        deliveryCharges: json["deliveryCharges"],
+        promoCode: json["promoCode"],
+        remarks: json["remarks"],
+        isLocationUpdate: json["isLocationUpdate"],
+        netInvoiceTotal: json["netInvoiceTotal"],
+        customer: CustomerModel.fromJson(json["customer"]),
+        items: List<ItemModel>.from(
+          json["items"].map((x) => ItemModel.fromJson(x)),
+        ),
+        transactionBy: json["transactionBy"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "locationID": locationId,
-    "invoiceNo": invoiceNo,
-    "invoiceDate": invoiceDate.toIso8601String(),
-    "invoiceType": invoiceType,
-    "paymentMode": paymentMode,
-    "partyID": partyId,
-    "receiptNo": receiptNo,
-    "invoiceTotal": invoiceTotal,
-    "invoiceDiscount": invoiceDiscount,
-    "fpBox": fpBox,
-    "fpCharges": fpCharges,
-    "cpCharges": cpCharges,
-    "deliveryCharges": deliveryCharges,
-    "promoCode": promoCode,
-    "remarks": remarks,
-    "isLocationUpdate": isLocationUpdate,
-    "netInvoiceTotal": netInvoiceTotal,
-    "customer": customer.toJson(),
-    "items": List<dynamic>.from(items.map((x) => x.toJson())),
-    "transactionBy": transactionBy,
-  };
+        "locationID": locationId,
+        "invoiceNo": invoiceNo,
+        "invoiceDate": invoiceDate.toIso8601String(),
+        "invoiceType": invoiceType,
+        "paymentMode": paymentMode,
+        "partyID": partyId,
+        "receiptNo": receiptNo,
+        "invoiceTotal": invoiceTotal,
+        "invoiceDiscount": invoiceDiscount,
+        "fpBox": fpBox,
+        "fpCharges": fpCharges,
+        "cpCharges": cpCharges,
+        "deliveryCharges": deliveryCharges,
+        "promoCode": promoCode,
+        "remarks": remarks,
+        "isLocationUpdate": isLocationUpdate,
+        "netInvoiceTotal": netInvoiceTotal,
+        "customer": customer.toJson(),
+        "items": List<dynamic>.from(items.map((x) => x.toJson())),
+        "transactionBy": transactionBy,
+      };
 }
 
 class CustomerModel {
@@ -151,26 +151,27 @@ class CustomerModel {
   });
 
   factory CustomerModel.fromJson(Map<String, dynamic> json) => CustomerModel(
-    partyId: json["partyID"],
-    partyName: json["partyName"],
-    mobile: json["mobile"],
-    address: json["address"],
-    lat: json["lat"],
-    long: json["long"],
-  );
+        partyId: json["partyID"],
+        partyName: json["partyName"],
+        mobile: json["mobile"],
+        address: json["address"],
+        lat: json["lat"],
+        long: json["long"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "partyID": partyId,
-    "partyName": partyName,
-    "mobile": mobile,
-    "address": address,
-    "lat": lat,
-    "long": long,
-  };
+        "partyID": partyId,
+        "partyName": partyName,
+        "mobile": mobile,
+        "address": address,
+        "lat": lat,
+        "long": long,
+      };
 }
 
 class ItemModel {
   String itemId;
+  String itemName;
   int quantity;
   int rate;
   int amount;
@@ -187,6 +188,7 @@ class ItemModel {
 
   ItemModel({
     required this.itemId,
+    required this.itemName,
     required this.quantity,
     required this.rate,
     required this.amount,
@@ -203,36 +205,38 @@ class ItemModel {
   });
 
   factory ItemModel.fromJson(Map<String, dynamic> json) => ItemModel(
-    itemId: json["itemID"],
-    quantity: json["quantity"],
-    rate: json["rate"],
-    amount: json["amount"],
-    discountId: json["discountID"],
-    itemDiscountPercent: json["itemDiscountPercent"],
-    itemPercentageAmount: json["itemPercentageAmount"],
-    itemDiscount: json["itemDiscount"],
-    gstPercent: json["gstPercent"],
-    gstAmount: json["gstAmount"],
-    applyTax: json["applyTax"],
-    applyDiscount: json["applyDiscount"],
-    discountType: json["discountType"],
-    subTotal: json["subTotal"],
-  );
+        itemId: json["itemID"],
+        itemName: json["itemName"],
+        quantity: json["quantity"],
+        rate: json["rate"],
+        amount: json["amount"],
+        discountId: json["discountID"],
+        itemDiscountPercent: json["itemDiscountPercent"],
+        itemPercentageAmount: json["itemPercentageAmount"],
+        itemDiscount: json["itemDiscount"],
+        gstPercent: json["gstPercent"],
+        gstAmount: json["gstAmount"],
+        applyTax: json["applyTax"],
+        applyDiscount: json["applyDiscount"],
+        discountType: json["discountType"],
+        subTotal: json["subTotal"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "itemID": itemId,
-    "quantity": quantity,
-    "rate": rate,
-    "amount": amount,
-    "discountID": discountId,
-    "itemDiscountPercent": itemDiscountPercent,
-    "itemPercentageAmount": itemPercentageAmount,
-    "itemDiscount": itemDiscount,
-    "gstPercent": gstPercent,
-    "gstAmount": gstAmount,
-    "applyTax": applyTax,
-    "applyDiscount": applyDiscount,
-    "discountType": discountType,
-    "subTotal": subTotal,
-  };
+        "itemID": itemId,
+        "itemName": itemName,
+        "quantity": quantity,
+        "rate": rate,
+        "amount": amount,
+        "discountID": discountId,
+        "itemDiscountPercent": itemDiscountPercent,
+        "itemPercentageAmount": itemPercentageAmount,
+        "itemDiscount": itemDiscount,
+        "gstPercent": gstPercent,
+        "gstAmount": gstAmount,
+        "applyTax": applyTax,
+        "applyDiscount": applyDiscount,
+        "discountType": discountType,
+        "subTotal": subTotal,
+      };
 }

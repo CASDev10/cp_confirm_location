@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-import 'dart:html' as html;
+
 import '../../../utils/display/display_utils.dart';
 import '../cubit/confirm_location/confirm_location_cubit.dart';
 import '../cubit/confirm_location/confirm_location_state.dart';
@@ -25,7 +25,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-
+/*
     final uri = Uri.parse(html.window.location.href);
     final idParam = uri.queryParameters['id'];
 
@@ -42,7 +42,8 @@ class _DashboardPageState extends State<DashboardPage> {
       }
     } else {
       context.read<OrderDetailCubit>().emitNoResult(); // No ID in URL
-    }
+    }*/
+    context.read<OrderDetailCubit>().fetchOrderDetail(106);
   }
 
   @override
@@ -65,7 +66,9 @@ class _DashboardPageState extends State<DashboardPage> {
       body: BlocConsumer<OrderDetailCubit, OrderDetailState>(
         listener: (context, orderDetailState) {
           if (orderDetailState.status == OrderDetailStatus.success) {
-            context.read<CurrentLocationCubit>().getCurrentLocationLatLng();
+            if (!orderDetailState.orderModel!.isLocationUpdate) {
+              context.read<CurrentLocationCubit>().getCurrentLocationLatLng();
+            }
           }
         },
         builder: (context, orderDetailState) {
@@ -78,16 +81,18 @@ class _DashboardPageState extends State<DashboardPage> {
           } else if (orderDetailState.status == OrderDetailStatus.success) {
             return BlocConsumer<CurrentLocationCubit, CurrentLocationState>(
               listener: (context, currentLocationState) {
-                if (currentLocationState.currentLocationStatus ==
-                    CurrentLocationStatus.success) {
-                  context.read<GeocodingCubit>().getCurrentLocationLatLng(
-                        currentLocationState.lat,
-                        currentLocationState.lng,
-                      );
+                if (!orderDetailState.orderModel!.isLocationUpdate) {
+                  if (currentLocationState.currentLocationStatus ==
+                      CurrentLocationStatus.success) {
+                    context.read<GeocodingCubit>().getCurrentLocationLatLng(
+                          currentLocationState.lat,
+                          currentLocationState.lng,
+                        );
+                  }
+                  print(
+                    "LatLng : ${currentLocationState.lat} , ${currentLocationState.lng}",
+                  );
                 }
-                print(
-                  "LatLng : ${currentLocationState.lat} , ${currentLocationState.lng}",
-                );
               },
               builder: (context, currentLocationState) {
                 return LayoutBuilder(
@@ -155,7 +160,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         (index) {
                                           return _buildItemCard(
                                             orderDetailState.orderModel!
-                                                .items[index].quantity
+                                                .items[index].itemName
                                                 .toString(),
                                             'Quantity: ${orderDetailState.orderModel!.items[index].quantity}',
                                             'Rate: \$${orderDetailState.orderModel!.items[index].rate}',
@@ -170,61 +175,98 @@ class _DashboardPageState extends State<DashboardPage> {
                               _buildCard(
                                 title: 'Charges & Total',
                                 children: [
-                                  _buildDetailRow(
-                                    Icons.local_shipping,
-                                    'Delivery Charges:',
-                                    '\$${orderDetailState.orderModel!.deliveryCharges}',
-                                  ),
-                                  _buildDetailRow(
-                                    Icons.monetization_on,
-                                    'Total Amount:',
-                                    '\$${orderDetailState.orderModel!.invoiceTotal}',
-                                    isBold: true,
-                                  ),
+                                  if (orderDetailState
+                                          .orderModel!.deliveryCharges >
+                                      0)
+                                    _buildDetailRow(
+                                      Icons.local_shipping,
+                                      'Delivery Charges:',
+                                      '\$${orderDetailState.orderModel!.deliveryCharges}',
+                                    ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 6.0),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            'Total Amount:',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          '\$${orderDetailState.orderModel!.invoiceTotal}',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
                                 ],
                               ),
-                              BlocBuilder<GeocodingCubit,
-                                  GeocodingLocationState>(
-                                builder: (context, geocodingState) {
-                                  return _buildCard(
+                              if (!orderDetailState
+                                  .orderModel!.isLocationUpdate)
+                                BlocBuilder<GeocodingCubit,
+                                    GeocodingLocationState>(
+                                  builder: (context, geocodingState) {
+                                    return _buildCard(
+                                      title: 'Delivery Address',
+                                      children: [
+                                        geocodingState.geocodingStatus ==
+                                                GeocodingStatus.success
+                                            ? Text(
+                                                geocodingState
+                                                    .addressEntity.address,
+                                                textAlign: TextAlign.center,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 16,
+                                                  color: Colors.black87,
+                                                ),
+                                              )
+                                            : Center(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Lottie.asset(
+                                                      'assets/animations/find_location.json',
+                                                      width: 150,
+                                                      height: 150,
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    Text(
+                                                      "Fetching Address...",
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              if (orderDetailState.orderModel!.isLocationUpdate)
+                                _buildCard(
                                     title: 'Delivery Address',
                                     children: [
-                                      geocodingState.geocodingStatus ==
-                                              GeocodingStatus.success
-                                          ? Text(
-                                              geocodingState
-                                                  .addressEntity.address,
-                                              textAlign: TextAlign.center,
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 16,
-                                                color: Colors.black87,
-                                              ),
-                                            )
-                                          : Center(
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Lottie.asset(
-                                                    'assets/animations/find_location.json',
-                                                    width: 150,
-                                                    height: 150,
-                                                  ),
-                                                  SizedBox(height: 10),
-                                                  Text(
-                                                    "Fetching Address...",
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                    ],
-                                  );
-                                },
-                              ),
+                                      Text(
+                                        orderDetailState.orderModel!.remarks,
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ]),
                               SizedBox(height: 20),
                               BlocBuilder<GeocodingCubit,
                                   GeocodingLocationState>(
