@@ -181,7 +181,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     _buildDetailRow(
                                       Icons.local_shipping,
                                       'Delivery Charges:',
-                                      '\$${orderDetailState.orderModel!.deliveryCharges}',
+                                      'Rs. ${orderDetailState.orderModel!.deliveryCharges}',
                                     ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -198,7 +198,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                           ),
                                         ),
                                         Text(
-                                          '\$${orderDetailState.orderModel!.invoiceTotal}',
+                                          'Rs. ${orderDetailState.orderModel!.invoiceTotal}',
                                           style: GoogleFonts.poppins(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
