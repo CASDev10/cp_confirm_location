@@ -180,7 +180,7 @@ class ItemModel {
   int itemPercentageAmount;
   int itemDiscount;
   int gstPercent;
-  int gstAmount;
+  double gstAmount;
   bool applyTax;
   bool applyDiscount;
   String discountType;
@@ -215,7 +215,7 @@ class ItemModel {
         itemPercentageAmount: json["itemPercentageAmount"],
         itemDiscount: json["itemDiscount"],
         gstPercent: json["gstPercent"],
-        gstAmount: json["gstAmount"],
+        gstAmount: json["gstAmount"]?.toDouble(),
         applyTax: json["applyTax"],
         applyDiscount: json["applyDiscount"],
         discountType: json["discountType"],

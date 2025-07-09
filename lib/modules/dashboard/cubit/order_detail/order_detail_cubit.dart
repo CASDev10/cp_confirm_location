@@ -10,35 +10,36 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
 
   OrderDetailCubit(this._repository) : super(OrderDetailState.initial());
 
-Future<void> fetchOrderDetail(int orderNo) async {
-  emit(state.copyWith(status: OrderDetailStatus.loading));
+  Future<void> fetchOrderDetail(int orderNo) async {
+    emit(state.copyWith(status: OrderDetailStatus.loading));
 
-  try {
-    OrderDetailResponse response = await _repository.fetchOrderDetail(orderNo);
+    try {
+      OrderDetailResponse response =
+          await _repository.fetchOrderDetail(orderNo);
 
-    if (response.success && response.data != null) {
-      emit(
-        state.copyWith(
-          status: OrderDetailStatus.success,
-          message: response.message,
-          orderModel: response.data,
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          status: OrderDetailStatus.noResult,
-          message: 'No result found',
-        ),
-      );
+      if (response.success) {
+        emit(
+          state.copyWith(
+            status: OrderDetailStatus.success,
+            message: response.message,
+            orderModel: response.data,
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            status: OrderDetailStatus.noResult,
+            message: 'No result found',
+          ),
+        );
+      }
+    } on ApiError catch (e) {
+      emit(state.copyWith(status: OrderDetailStatus.error, message: e.message));
     }
-  } on ApiError catch (e) {
-    emit(state.copyWith(status: OrderDetailStatus.error, message: e.message));
   }
-}
 
   void emitNoResult() {
-  emit(state.copyWith(status: OrderDetailStatus.noResult, message: 'No result found'));
-}
-
+    emit(state.copyWith(
+        status: OrderDetailStatus.noResult, message: 'No result found'));
+  }
 }

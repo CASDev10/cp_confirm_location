@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-import 'package:web/web.dart' as web;
 
 import '../../../utils/display/display_utils.dart';
 import '../cubit/confirm_location/confirm_location_cubit.dart';
@@ -26,24 +25,26 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    final href = web.window.location.href;
-    final uri = Uri.parse(href);
-    final idParam = uri.queryParameters['id'];
+    // final href = web.window.location.href;
+    // final uri = Uri.parse(href);
+    // final idParam = uri.queryParameters['id'];
+    //
+    // if (idParam != null && idParam.trim().isNotEmpty) {
+    //   final parsedId = int.tryParse(idParam);
+    //   if (parsedId != null) {
+    //     setState(() {
+    //       id = idParam;
+    //     });
+    //
+    //     context.read<OrderDetailCubit>().fetchOrderDetail(parsedId);
+    //   } else {
+    //     context.read<OrderDetailCubit>().emitNoResult(); // if needed
+    //   }
+    // } else {
+    //   context.read<OrderDetailCubit>().emitNoResult(); // No ID in URL
+    // }
 
-    if (idParam != null && idParam.trim().isNotEmpty) {
-      final parsedId = int.tryParse(idParam);
-      if (parsedId != null) {
-        setState(() {
-          id = idParam;
-        });
-
-        context.read<OrderDetailCubit>().fetchOrderDetail(parsedId);
-      } else {
-        context.read<OrderDetailCubit>().emitNoResult(); // if needed
-      }
-    } else {
-      context.read<OrderDetailCubit>().emitNoResult(); // No ID in URL
-    }
+    context.read<OrderDetailCubit>().fetchOrderDetail(10491);
   }
 
   @override
@@ -75,7 +76,7 @@ class _DashboardPageState extends State<DashboardPage> {
           if (orderDetailState.status == OrderDetailStatus.loading) {
             return Center(child: CircularProgressIndicator());
           } else if (orderDetailState.status == OrderDetailStatus.error) {
-            return Center(child: Text('Error fetching order details'));
+            return Center(child: Text(orderDetailState.message));
           } else if (orderDetailState.status == OrderDetailStatus.noResult) {
             return Center(child: Text('No Order Found'));
           } else if (orderDetailState.status == OrderDetailStatus.success) {
