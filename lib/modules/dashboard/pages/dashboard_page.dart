@@ -343,18 +343,17 @@ class _DashboardPageState extends State<DashboardPage> {
                                                             ),
                                                           ),
                                                           onPressed: () {
-                                                            context
-                                                                .read<
-                                                                    UpdateLocationCubit>()
-                                                                .updateLocation(
-                                                                  orderDetailState
-                                                                      .orderModel!
-                                                                      .invoiceNo,
-                                                                  currentLocationState
-                                                                      .lat,
-                                                                  currentLocationState
-                                                                      .lng,
-                                                                );
+                                                            context.read<UpdateLocationCubit>().updateLocation(
+                                                                orderDetailState
+                                                                    .orderModel!
+                                                                    .invoiceNo,
+                                                                currentLocationState
+                                                                    .lat,
+                                                                currentLocationState
+                                                                    .lng,
+                                                                geocodingState
+                                                                    .addressEntity
+                                                                    .address);
                                                           },
                                                           child: Text(
                                                             'Confirm Location',
