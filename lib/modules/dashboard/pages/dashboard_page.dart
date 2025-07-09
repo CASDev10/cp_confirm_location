@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:web/web.dart' as web;
 
 import '../../../utils/display/display_utils.dart';
 import '../cubit/confirm_location/confirm_location_cubit.dart';
@@ -25,8 +26,8 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-/*
-    final uri = Uri.parse(html.window.location.href);
+    final href = web.window.location.href;
+    final uri = Uri.parse(href);
     final idParam = uri.queryParameters['id'];
 
     if (idParam != null && idParam.trim().isNotEmpty) {
@@ -42,8 +43,7 @@ class _DashboardPageState extends State<DashboardPage> {
       }
     } else {
       context.read<OrderDetailCubit>().emitNoResult(); // No ID in URL
-    }*/
-    context.read<OrderDetailCubit>().fetchOrderDetail(106);
+    }
   }
 
   @override
@@ -163,8 +163,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 .items[index].itemName
                                                 .toString(),
                                             'Quantity: ${orderDetailState.orderModel!.items[index].quantity}',
-                                            'Rate: \$${orderDetailState.orderModel!.items[index].rate}',
-                                            'Subtotal: \$${orderDetailState.orderModel!.items[index].subTotal}',
+                                            'Rate: Rs ${orderDetailState.orderModel!.items[index].rate}',
+                                            'Subtotal: Rs ${orderDetailState.orderModel!.items[index].subTotal}',
                                           );
                                         },
                                       ),
