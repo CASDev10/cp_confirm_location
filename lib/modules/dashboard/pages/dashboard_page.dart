@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-
+import 'dart:html' as web;
 import '../../../utils/display/display_utils.dart';
 import '../cubit/confirm_location/confirm_location_cubit.dart';
 import '../cubit/confirm_location/confirm_location_state.dart';
@@ -25,26 +25,24 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    // final href = web.window.location.href;
-    // final uri = Uri.parse(href);
-    // final idParam = uri.queryParameters['id'];
-    //
-    // if (idParam != null && idParam.trim().isNotEmpty) {
-    //   final parsedId = int.tryParse(idParam);
-    //   if (parsedId != null) {
-    //     setState(() {
-    //       id = idParam;
-    //     });
-    //
-    //     context.read<OrderDetailCubit>().fetchOrderDetail(parsedId);
-    //   } else {
-    //     context.read<OrderDetailCubit>().emitNoResult(); // if needed
-    //   }
-    // } else {
-    //   context.read<OrderDetailCubit>().emitNoResult(); // No ID in URL
-    // }
+    final href = web.window.location.href;
+    final uri = Uri.parse(href);
+    final idParam = uri.queryParameters['id'];
 
-    context.read<OrderDetailCubit>().fetchOrderDetail(10491);
+    if (idParam != null && idParam.trim().isNotEmpty) {
+      final parsedId = int.tryParse(idParam);
+      if (parsedId != null) {
+        setState(() {
+          id = idParam;
+        });
+
+        context.read<OrderDetailCubit>().fetchOrderDetail(parsedId);
+      } else {
+        context.read<OrderDetailCubit>().emitNoResult(); // if needed
+      }
+    } else {
+      context.read<OrderDetailCubit>().emitNoResult(); // No ID in URL
+    }
   }
 
   @override
@@ -343,18 +341,17 @@ class _DashboardPageState extends State<DashboardPage> {
                                                             ),
                                                           ),
                                                           onPressed: () {
-                                                            context
-                                                                .read<
-                                                                    UpdateLocationCubit>()
-                                                                .updateLocation(
-                                                                  orderDetailState
-                                                                      .orderModel!
-                                                                      .invoiceNo,
-                                                                  currentLocationState
-                                                                      .lat,
-                                                                  currentLocationState
-                                                                      .lng,
-                                                                );
+                                                            context.read<UpdateLocationCubit>().updateLocation(
+                                                                orderDetailState
+                                                                    .orderModel!
+                                                                    .invoiceNo,
+                                                                currentLocationState
+                                                                    .lat,
+                                                                currentLocationState
+                                                                    .lng,
+                                                                geocodingState
+                                                                    .addressEntity
+                                                                    .address);
                                                           },
                                                           child: Text(
                                                             'Confirm Location',
