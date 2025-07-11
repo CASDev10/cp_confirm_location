@@ -42,7 +42,7 @@ class DashboardRepository {
           "InvoiceNo": orderNo,
           "LAT": lat,
           "LONG": lng,
-          'Address': address
+          "Address": address
         },
       );
       return BaseResponse.fromJson(response.data);
