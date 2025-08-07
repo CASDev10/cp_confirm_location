@@ -60,6 +60,7 @@ class OrderModel {
   CustomerModel customer;
   List<ItemModel> items;
   String transactionBy;
+  String invoiceStatus;
 
   OrderModel({
     required this.locationId,
@@ -82,6 +83,7 @@ class OrderModel {
     required this.customer,
     required this.items,
     required this.transactionBy,
+    required this.invoiceStatus,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) => OrderModel(
@@ -107,6 +109,7 @@ class OrderModel {
           json["items"].map((x) => ItemModel.fromJson(x)),
         ),
         transactionBy: json["transactionBy"],
+        invoiceStatus: json["invoiceStatus"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -130,7 +133,16 @@ class OrderModel {
         "customer": customer.toJson(),
         "items": List<dynamic>.from(items.map((x) => x.toJson())),
         "transactionBy": transactionBy,
+        "invoiceStatus": invoiceStatus,
       };
+
+  int getTotal() {
+    if (deliveryCharges != 0) {
+      return invoiceTotal + deliveryCharges;
+    } else {
+      return invoiceTotal;
+    }
+  }
 }
 
 class CustomerModel {

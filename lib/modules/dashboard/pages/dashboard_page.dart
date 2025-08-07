@@ -5,6 +5,7 @@ import 'package:cp_confirm_location/modules/dashboard/cubit/geocoding/geocoding_
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../utils/display/display_utils.dart';
@@ -90,9 +91,6 @@ class _DashboardPageState extends State<DashboardPage> {
                           currentLocationState.lng,
                         );
                   }
-                  print(
-                    "LatLng : ${currentLocationState.lat} , ${currentLocationState.lng}",
-                  );
                 }
               },
               builder: (context, currentLocationState) {
@@ -114,39 +112,41 @@ class _DashboardPageState extends State<DashboardPage> {
                                 title: 'Customer Information',
                                 children: [
                                   _buildDetailRow(
-                                    Icons.person,
-                                    'Name:',
-                                    orderDetailState
-                                        .orderModel!.customer.partyName,
-                                  ),
+                                      Icons.person,
+                                      'Name:',
+                                      orderDetailState
+                                          .orderModel!.customer.partyName),
                                   _buildDetailRow(
-                                    Icons.phone,
-                                    'Mobile:',
-                                    orderDetailState
-                                        .orderModel!.customer.mobile,
-                                  ),
+                                      Icons.phone,
+                                      'Mobile:',
+                                      orderDetailState
+                                          .orderModel!.customer.mobile),
                                 ],
                               ),
                               _buildCard(
                                 title: 'Invoice Details',
                                 children: [
                                   _buildDetailRow(
-                                    Icons.receipt,
-                                    'Invoice No:',
-                                    orderDetailState.orderModel!.invoiceNo
-                                        .toString(),
-                                  ),
+                                      Icons.receipt,
+                                      'Invoice No:',
+                                      orderDetailState.orderModel!.invoiceNo
+                                          .toString()),
                                   _buildDetailRow(
                                     Icons.calendar_today,
                                     'Date:',
-                                    orderDetailState.orderModel!.invoiceDate
-                                        .toString(),
+                                    DateFormat('yyyy-MM-dd hh:mm a').format(
+                                        orderDetailState
+                                            .orderModel!.invoiceDate),
                                   ),
                                   _buildDetailRow(
-                                    Icons.payment,
-                                    'Payment Mode:',
-                                    orderDetailState.orderModel!.paymentMode,
-                                  ),
+                                      Icons.payment,
+                                      'Payment Mode:',
+                                      orderDetailState.orderModel!.paymentMode),
+                                  _buildDetailRow(
+                                      Icons.payment,
+                                      'Order Status:',
+                                      orderDetailState
+                                          .orderModel!.invoiceStatus),
                                 ],
                               ),
                               _buildCard(
@@ -159,13 +159,12 @@ class _DashboardPageState extends State<DashboardPage> {
                                         orderDetailState
                                             .orderModel!.items.length,
                                         (index) {
+                                          final item = orderDetailState
+                                              .orderModel!.items[index];
                                           return _buildItemCard(
-                                            orderDetailState.orderModel!
-                                                .items[index].itemName
-                                                .toString(),
-                                            'Quantity: ${orderDetailState.orderModel!.items[index].quantity}',
-                                            'Rate: Rs ${orderDetailState.orderModel!.items[index].rate}',
-                                            'Subtotal: Rs ${orderDetailState.orderModel!.items[index].subTotal}',
+                                            item.itemName,
+                                            'Quantity: ${item.quantity}',
+                                            'Rs ${item.rate}',
                                           );
                                         },
                                       ),
@@ -199,7 +198,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                           ),
                                         ),
                                         Text(
-                                          'Rs. ${orderDetailState.orderModel!.invoiceTotal}',
+                                          'Rs. ${orderDetailState.orderModel!.netInvoiceTotal}',
                                           style: GoogleFonts.poppins(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -207,179 +206,204 @@ class _DashboardPageState extends State<DashboardPage> {
                                         ),
                                       ],
                                     ),
-                                  )
+                                  ),
                                 ],
                               ),
-                              orderDetailState.orderModel!.isLocationUpdate
-                                  ? _buildCard(
-                                      title: 'Delivery Address',
+                              !orderDetailState.orderModel!.isLocationUpdate
+                                  ? Column(
                                       children: [
-                                          Text(
-                                            orderDetailState
-                                                .orderModel!.remarks,
-                                            textAlign: TextAlign.center,
+                                        _buildCard(
+                                          title: 'Previous Delivery Address',
+                                          children: [
+                                            Text(
+                                              orderDetailState
+                                                  .orderModel!.customer.address,
+                                              textAlign: TextAlign.center,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: Text(
+                                            "Do you want to update your address?",
                                             style: GoogleFonts.poppins(
                                               fontSize: 16,
-                                              color: Colors.black87,
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                        ])
-                                  : BlocBuilder<GeocodingCubit,
-                                      GeocodingLocationState>(
-                                      builder: (context, geocodingState) {
-                                        if (geocodingState.geocodingStatus ==
-                                            GeocodingStatus.success) {
-                                          return Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              _buildCard(
-                                                title: 'Delivery Address',
+                                        ),
+                                        BlocBuilder<GeocodingCubit,
+                                            GeocodingLocationState>(
+                                          builder: (context, geocodingState) {
+                                            if (geocodingState
+                                                    .geocodingStatus ==
+                                                GeocodingStatus.success) {
+                                              return Column(
                                                 children: [
-                                                  Text(
-                                                    geocodingState
-                                                        .addressEntity.address,
-                                                    textAlign: TextAlign.center,
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 16,
-                                                      color: Colors.black87,
-                                                    ),
+                                                  _buildCard(
+                                                    title:
+                                                        'Current Location Address',
+                                                    children: [
+                                                      Text(
+                                                        geocodingState
+                                                            .addressEntity
+                                                            .address,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontSize: 16,
+                                                          color: Colors.black87,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
-                                              if (!orderDetailState
-                                                  .orderModel!.isLocationUpdate)
-                                                BlocConsumer<
-                                                    UpdateLocationCubit,
-                                                    UpdateLocationState>(
-                                                  listener: (
-                                                    context,
-                                                    updateLocationState,
-                                                  ) {
-                                                    if (updateLocationState
-                                                            .status ==
-                                                        UpdateLocationStatus
-                                                            .loading) {
-                                                      DisplayUtils.showLoader();
-                                                    }
-                                                    if (updateLocationState
-                                                            .status ==
-                                                        UpdateLocationStatus
-                                                            .error) {
-                                                      DisplayUtils
-                                                          .removeLoader();
-                                                      DisplayUtils.showSnackBar(
-                                                        context,
-                                                        updateLocationState
-                                                            .message,
-                                                      );
-                                                    }
-                                                    if (updateLocationState
-                                                            .status ==
-                                                        UpdateLocationStatus
-                                                            .success) {
-                                                      DisplayUtils
-                                                          .removeLoader();
-                                                      DisplayUtils.showSnackBar(
-                                                        context,
-                                                        updateLocationState
-                                                            .message,
-                                                      );
-                                                    }
-                                                  },
-                                                  builder: (
-                                                    context,
-                                                    updateLocationState,
-                                                  ) {
-                                                    return updateLocationState
-                                                                .status !=
-                                                            UpdateLocationStatus
-                                                                .success
-                                                        ? SizedBox(
-                                                            width:
-                                                                double.infinity,
-                                                            child:
-                                                                ElevatedButton(
-                                                              style:
-                                                                  ElevatedButton
-                                                                      .styleFrom(
-                                                                backgroundColor:
-                                                                    Color(
-                                                                  0xFFEF1D26,
+                                                  BlocConsumer<
+                                                      UpdateLocationCubit,
+                                                      UpdateLocationState>(
+                                                    listener: (context,
+                                                        updateLocationState) {
+                                                      if (updateLocationState
+                                                              .status ==
+                                                          UpdateLocationStatus
+                                                              .loading) {
+                                                        DisplayUtils
+                                                            .showLoader();
+                                                      } else {
+                                                        DisplayUtils
+                                                            .removeLoader();
+                                                        if (updateLocationState
+                                                                    .status ==
+                                                                UpdateLocationStatus
+                                                                    .success ||
+                                                            updateLocationState
+                                                                    .status ==
+                                                                UpdateLocationStatus
+                                                                    .error) {
+                                                          DisplayUtils
+                                                              .showSnackBar(
+                                                            context,
+                                                            updateLocationState
+                                                                .message,
+                                                          );
+                                                        }
+                                                      }
+                                                    },
+                                                    builder: (context,
+                                                        updateLocationState) {
+                                                      return updateLocationState
+                                                                  .status !=
+                                                              UpdateLocationStatus
+                                                                  .success
+                                                          ? SizedBox(
+                                                              width: double
+                                                                  .infinity,
+                                                              child:
+                                                                  ElevatedButton(
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                  backgroundColor:
+                                                                      Color(
+                                                                          0xFFEF1D26),
+                                                                  padding: EdgeInsets
+                                                                      .symmetric(
+                                                                          vertical:
+                                                                              16),
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            12),
+                                                                  ),
                                                                 ),
-                                                                padding: EdgeInsets
-                                                                    .symmetric(
-                                                                  vertical: 16,
-                                                                ),
-                                                                shape:
-                                                                    RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                    12,
+                                                                onPressed: () {
+                                                                  context
+                                                                      .read<
+                                                                          UpdateLocationCubit>()
+                                                                      .updateLocation(
+                                                                        orderDetailState
+                                                                            .orderModel!
+                                                                            .invoiceNo,
+                                                                        currentLocationState
+                                                                            .lat,
+                                                                        currentLocationState
+                                                                            .lng,
+                                                                        geocodingState
+                                                                            .addressEntity
+                                                                            .address,
+                                                                      );
+                                                                },
+                                                                child: Text(
+                                                                  'Update Location',
+                                                                  style: GoogleFonts
+                                                                      .poppins(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: Colors
+                                                                        .white,
                                                                   ),
                                                                 ),
                                                               ),
-                                                              onPressed: () {
-                                                                context.read<UpdateLocationCubit>().updateLocation(
-                                                                    orderDetailState
-                                                                        .orderModel!
-                                                                        .invoiceNo,
-                                                                    currentLocationState
-                                                                        .lat,
-                                                                    currentLocationState
-                                                                        .lng,
-                                                                    geocodingState
-                                                                        .addressEntity
-                                                                        .address);
-                                                              },
-                                                              child: Text(
-                                                                'Confirm Location',
-                                                                style:
-                                                                    GoogleFonts
-                                                                        .poppins(
-                                                                  fontSize: 18,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          )
-                                                        : SizedBox.shrink();
-                                                  },
-                                                )
-                                            ],
-                                          );
-                                        }
-                                        return _buildCard(
-                                            title: 'Delivery Address',
-                                            children: [
-                                              Center(
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Lottie.asset(
-                                                      'assets/animations/find_location.json',
-                                                      width: 150,
-                                                      height: 150,
+                                                            )
+                                                          : SizedBox.shrink();
+                                                    },
+                                                  )
+                                                ],
+                                              );
+                                            } else {
+                                              return _buildCard(
+                                                title:
+                                                    'Current Location Address',
+                                                children: [
+                                                  Center(
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Lottie.asset(
+                                                          'assets/animations/find_location.json',
+                                                          width: 150,
+                                                          height: 150,
+                                                        ),
+                                                        SizedBox(height: 10),
+                                                        Text(
+                                                          "Fetching Address...",
+                                                          style: TextStyle(
+                                                            color: Colors.black,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                    SizedBox(height: 10),
-                                                    Text(
-                                                      "Fetching Address...",
-                                                      style: TextStyle(
-                                                        color: Colors.black,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              )
-                                            ]);
-                                      },
+                                                  ),
+                                                ],
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    )
+                                  : _buildCard(
+                                      title: 'Delivery Address',
+                                      children: [
+                                        Text(
+                                          orderDetailState.orderModel!.remarks,
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                             ],
                           ),
@@ -424,12 +448,8 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildDetailRow(
-    IconData icon,
-    String label,
-    String value, {
-    bool isBold = false,
-  }) {
+  Widget _buildDetailRow(IconData icon, String label, String value,
+      {bool isBold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
@@ -460,34 +480,80 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildItemCard(
     String item,
     String quantity,
-    String rate,
     String subtotal,
   ) {
     return Card(
-      color: Colors.grey[100],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
+      elevation: 6,
+      margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Container(
+        width: 240,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          gradient: LinearGradient(
+            colors: [Colors.white, Colors.grey[100]!],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              item,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+            // Item Name
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.fastfood, color: Color(0xFFEF1D26), size: 20),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '$item\n',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 5),
-            Text(quantity, style: GoogleFonts.poppins(fontSize: 14)),
-            Text(rate, style: GoogleFonts.poppins(fontSize: 14)),
-            Text(
-              subtotal,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
+            SizedBox(height: 10),
+
+            // Quantity
+            Row(
+              children: [
+                Icon(Icons.shopping_bag_outlined,
+                    size: 18, color: Colors.grey[700]),
+                SizedBox(width: 8),
+                Text(
+                  quantity,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
+
+            // Subtotal
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  subtotal,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: Color(0xFFEF1D26),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
